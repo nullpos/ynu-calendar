@@ -69,10 +69,9 @@ def main():
     info = parser.get_info()
     for e in info:
         event = create_event(e['summary'], e['term'])
-        #print(event)
+        event = service.events().insert(calendarId='primary', body=event).execute()
+        print('Event created: %s' % (event.get('htmlLink')))
 
-    event = service.events().insert(calendarId='primary', body=event).execute()
-    print('Event created: %s' % (event.get('htmlLink')))
 
 
 def create_event(summary, term):
