@@ -77,6 +77,10 @@ def main():
 def create_event(summary, term):
     event = {}
     event['summary'] = summary
+    if not term['start'] == term['end']:
+        dt = datetime.datetime.strptime(term['end'], '%Y-%m-%d') + datetime.timedelta(days=1)
+        term['end'] = dt.date().isoformat()
+
     event['start'] = {
             'date': term['start'],
             'timeZone': 'Asia/Tokyo'
@@ -90,4 +94,3 @@ def create_event(summary, term):
 
 if __name__ == '__main__':
     main()
-
