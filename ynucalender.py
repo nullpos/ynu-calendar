@@ -52,8 +52,12 @@ class YNUCalendar:
         info = []
         for tr in self._bs_inner.find_all("tr"):
             td = tr.find_all("td")
-            term = self._parse_term(re.sub("[\n\r\t ]", "", td[1].get_text()))
-            info.append({"summary": td[0].get_text(), "term": term})
+            term = re.sub("[\n\r\t ]", "", td[1].get_text())
+            info.append({
+                "summary": td[0].get_text(),
+                "term": self._parse_term(term),
+                "description": term
+            })
         return info
 
     def get_raw_html(self):

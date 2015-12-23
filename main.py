@@ -68,26 +68,32 @@ def main():
     parser = ynucalender.YNUCalendar()
     info = parser.get_info()
     for e in info:
-        event = create_event(e['summary'], e['term'])
+        event = create_event(e)
         event = service.events().insert(calendarId='primary', body=event).execute()
         print('Event created: %s' % (event.get('htmlLink')))
 
 
 
-def create_event(summary, term):
+def create_event(e):
     event = {}
-    event['summary'] = summary
-    if not term['start'] == term['end']:
-        dt = datetime.datetime.strptime(term['end'], '%Y-%m-%d') + datetime.timedelta(days=1)
-        term['end'] = dt.date().isoformat()
+    event['summary'] = e['summary']
+    event['source'] = {
+            'title': u'ynu-calendar'
+    }
+    event['description'] = e['description']
+
+
+    if not e['term']['start'] == e['term']['end']:
+        dt = datetime.datetime.strptime(e['term']['end'], '%Y-%m-%d') + datetime.timedelta(days=1)
+        e['term']['end'] = dt.date().isoformat().encode('utf-8')
 
     event['start'] = {
-            'date': term['start'],
-            'timeZone': 'Asia/Tokyo'
+            'date': e['term']['start'],
+            'timeZone': u'Asia/Tokyo'
     }
     event['end'] = {
-            'date': term['end'],
-            'timeZone': 'Asia/Tokyo'
+            'date': e['term']['end'],
+            'timeZone': u'Asia/Tokyo'
     }
     return event
 
