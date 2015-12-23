@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
@@ -6,6 +5,7 @@ import httplib2
 import urllib2
 import os
 import sys
+import re
 
 from apiclient import discovery
 import oauth2client
@@ -26,7 +26,6 @@ except ImportError:
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'ynu calendar'
-
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -66,24 +65,30 @@ def main():
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
 
-    now = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-    print('Getting the upcoming 10 events')
-    eventsResult = service.events().list(
-        calendarId='primary', timeMin=now, maxResults=10, singleEvents=True,
-        orderBy='startTime').execute()
-    events = eventsResult.get('items', [])
+    parser = ynucalender.YNUCalendar()
+    info = parser.get_info()
+    for e in info:
+        event = create_event(e['summary'], e['term'])
+        #print(event)
 
-    if not events:
-        print('No upcoming events found.')
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        print(start, event['summary'])
+    event = service.events().insert(calendarId='primary', body=event).execute()
+    print('Event created: %s' % (event.get('htmlLink')))
+
+
+def create_event(summary, term):
+    event = {}
+    event['summary'] = summary
+    event['start'] = {
+            'date': term['start'],
+            'timeZone': 'Asia/Tokyo'
+    }
+    event['end'] = {
+            'date': term['end'],
+            'timeZone': 'Asia/Tokyo'
+    }
+    return event
 
 
 if __name__ == '__main__':
-    #main()
-    parser = ynucalender.YNUCalendar()
-    events = parser.get_events()
-    for e in events:
-        print(e['name'])
-        print(e['term'])
+    main()
+
