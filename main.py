@@ -78,14 +78,15 @@ def create_event(e):
     event = {}
     event['summary'] = e['summary']
     event['source'] = {
-            'title': u'ynu-calendar'
+            'title': u'ynu-calendar',
+            'url': u'http://www.ynu.ac.jp/campus/schedule/year.html'
     }
     event['description'] = e['description']
 
 
     if not e['term']['start'] == e['term']['end']:
         dt = datetime.datetime.strptime(e['term']['end'], '%Y-%m-%d') + datetime.timedelta(days=1)
-        e['term']['end'] = dt.date().isoformat().encode('utf-8')
+        e['term']['end'] = dt.date().isoformat().decode('utf-8')
 
     event['start'] = {
             'date': e['term']['start'],
